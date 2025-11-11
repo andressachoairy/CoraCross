@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz SAEB - Desafio Educacional</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            overflow: hidden;
+            min-height: auto;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+            min-height: auto;
+        }
+
+        .active {
+            display: block;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .teams-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        .team-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .team-card:hover {
+            transform: translateY(-3px);
+            border-color: #667eea;
+        }
+
+        .team-card.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .team-card.blue {
+            border-left: 4px solid #007bff;
+        }
+
+        .team-card.pink {
+            border-left: 4px solid #e83e8c;
+        }
+
+        .team-card.green {
+            border-left: 4px solid #28a745;
+        }
+
+        .team-card.red {
+            border-left: 4px solid #dc3545;
+        }
+
+        .team-card h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .team-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .question-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            margin: 8px 4px;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .challenge-container {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #ffeaa7;
+            margin-bottom: 20px;
+        }
+
+        .challenge-title {
+            color: #856404;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+
+        .challenge-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9em;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        .ranking-table th,
+        .ranking-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .ranking-table th {
+            background: #667eea;
+            color: white;
+        }
+
+        .ranking-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .ranking-position {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .challenge-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .current-team {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .score-display {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .feedback {
+            padding: 12px;
+            border-radius: 6px;
+            margin: 12px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .team-selection {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .team-selection-title {
+            text-align: center;
+            margin-bottom: 12px;
+            color: #495057;
+            font-size: 1.1em;
+        }
+
+        .final-scores {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .final-scores h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #495057;
+            font-size: 1.2em;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .score-breakdown {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .score-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            font-size: 0.9em;
+        }
+
+        .score-label {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .score-value {
+            font-size: 1.1em;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .skip-info {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #ffc107;
+            margin-top: 12px;
+            font-size: 0.9em;
+        }
+
+        .skip-info p {
+            margin: 4px 0;
+            color: #856404;
+        }
+
+        /* ESTILOS PARA A PÁGINA INICIAL */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-image {
+            max-width: 250px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 480px) {
+            .logo-image {
+                max-width: 200px;
+            }
+        }
+
+        .rules-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .rules-title {
+            color: #333;
+            margin-bottom: 12px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .rules-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .rules-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+            color: #555;
+            line-height: 1.4;
+            font-size: 0.9em;
+        }
+
+        .rules-list li:last-child {
+            border-bottom: none;
+        }
+
+        .rules-list li strong {
+            color: #667eea;
+        }
+
+        .start-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Ajustes para telas muito pequenas */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .screen {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.9em;
+                margin: 5px 3px;
+            }
+            
+            .controls, .challenge-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .controls > * {
+                margin: 5px 0;
+            }
+        }
+
+        /* Ajustes para evitar rolagem vertical */
+        @media (max-height: 700px) {
+            .rules-container {
+                max-height: 300px;
+            }
+            
+            .screen {
+                padding: 15px;
+            }
+            
+            .question-container,
+            .challenge-container,
+            .team-selection {
+                padding: 15px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .rules-container {
+                max-height: 250px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+            
+            .logo-image {
+                max-width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Tela Inicial MODIFICADA -->
+        <div id="start-screen" class="screen active">
+            <h1>🎯 CORACROSS - Desafio Educacional</h1>
+            
+            <!-- Container para a logo -->
+            <div class="logo-container">
+                <img src="logo.jpeg" alt="Logo do Jogo" class="logo-image" id="game-logo">
+            </div>
+
+            <!-- Container das regras do jogo -->
+            <div class="rules-container">
+                <h2 class="rules-title">📋 Regras do Jogo</h2>
+                <ul class="rules-list">
+                    <li><strong>4 Equipes:</strong> Azul, Rosa, Verde e Vermelho</li>
+                    <li><strong>Rodadas Alternadas:</strong> A cada pergunta, escolha qual equipe vai responder</li>
+                    <li><strong>Questões SAEB:</strong> Perguntas de Português e Matemática do 9º ano</li>
+                    <li><strong>+5 Pontos:</strong> Cada resposta correta vale 5 pontos</li>
+                    <li><strong>Desafios de Educação Física:</strong> Acertou a questão? Libera um desafio prático!</li>
+                    <li><strong>+5 Pontos Extras:</strong> Cada desafio concluído vale mais 5 pontos</li>
+                    <li><strong>Pular Desafio:</strong> Se a equipe não conseguir, pode pular sem pontos extras</li>
+                    <li><strong>Ranking Final:</strong> Vitória para a equipe com maior pontuação total</li>
+                    <li><strong>Professor:</strong> Controla as seleções e valida os desafios realizados</li>
+                </ul>
+            </div>
+
+            <!-- Botões de ação -->
+            <div class="start-buttons">
+                <button class="btn" onclick="startGame()">🎮 Iniciar Jogo</button>
+                <button class="btn btn-danger" onclick="resetGame()">🔄 Reiniciar Jogo</button>
+            </div>
+        </div>
+
+        <!-- Tela do Quiz -->
+        <div id="quiz-screen" class="screen">
+            <h1>📝 Questão SAEB</h1>
+            
+            <div class="team-selection">
+                <h3 class="team-selection-title">Selecione a equipe que vai responder:</h3>
+                <div class="teams-grid">
+                    <div class="team-card blue" onclick="selectCurrentTeam(1)">
+                        <h3>🔵 Equipe Azul</h3>
+                        <div class="team-score" id="quiz-team1-score">0 pontos</div>
+                    </div>
+                    <div class="team-card pink" onclick="selectCurrentTeam(2)">
+                        <h3>🎀 Equipe Rosa</h3>
+                        <div class="team-score" id="quiz-team2-score">0 pontos</div>
+                    </div>
+                    <div class="team-card green" onclick="selectCurrentTeam(3)">
+                        <h3>🌿 Equipe Verde</h3>
+                        <div class="team-score" id="quiz-team3-score">0 pontos</div>
+                    </div>
+                    <div class="team-card red" onclick="selectCurrentTeam(4)">
+                        <h3>🔴 Equipe Vermelha</h3>
+                        <div class="team-score" id="quiz-team4-score">0 pontos</div>
+                    </div>
+                </div>
+                <div class="current-team" id="current-team-display">Nenhuma equipe selecionada</div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question-text" id="question-text">Carregando pergunta...</div>
+                <div class="options-grid" id="options-container">
+                    <!-- Opções serão inseridas aqui via JavaScript -->
+                </div>
+            </div>
+
+            <div id="feedback" class="feedback hidden"></div>
+
+            <div class="controls">
+                <button class="btn btn-danger" onclick="backToStart()">Voltar ao Início</button>
+                <button class="btn" onclick="submitAnswer()" id="submit-btn" disabled>Responder</button>
+                <button class="btn btn-success" onclick="showRanking()">Finalizar Jogo</button>
+            </div>
+        </div>
+
+        <!-- Tela do Desafio -->
+        <div id="challenge-screen" class="screen">
+            <h1>🏃‍♂️ Desafio de Educação Física</h1>
+            <div class="current-team" id="challenge-team-display">Equipe: </div>
+            
+            <div class="challenge-container">
+                <h2 class="challenge-title" id="challenge-title">Desafio Carregando...</h2>
+                <div class="challenge-description" id="challenge-description">
+                    Descrição do desafio...
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="challenge-done">
+                        <label for="challenge-done">Desafio realizado com sucesso</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="practice-done">
+                        <label for="practice-done">Parte prática concluída</label>
+                    </div>
+                </div>
+
+                <div class="skip-info">
+                    <p><strong>⚠️ A equipe não conseguiu realizar o desafio?</strong></p>
+                    <p>Clique em "Pular Desafio" para continuar sem ganhar os pontos extras.</p>
+                </div>
+            </div>
+
+            <div class="challenge-controls">
+                <div>
+                    <button class="btn btn-danger" onclick="backToQuiz()">Voltar ao Quiz</button>
+                    <button class="btn btn-warning" onclick="skipChallenge()">Pular Desafio</button>
+                </div>
+                <button class="btn btn-success" onclick="completeChallenge()">Concluir Desafio</button>
+            </div>
+        </div>
+
+        <!-- Tela de Ranking -->
+        <div id="ranking-screen" class="screen">
+            <h1>🏆 Ranking Final</h1>
+            
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th>Posição</th>
+                        <th>Equipe</th>
+                        <th>Pontuação Total</th>
+                        <th>Questões Acertadas</th>
+                        <th>Desafios Concluídos</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-body">
+                    <!-- Ranking será preenchido via JavaScript -->
+                </tbody>
+            </table>
+
+            <div class="final-scores">
+                <h3>📊 Pontuação Detalhada por Equipe</h3>
+                <div class="score-breakdown" id="score-breakdown">
+                    <!-- Detalhamento de pontuação será preenchido via JavaScript -->
+                </div>
+            </div>
+
+            <div class="controls" style="justify-content: center;">
+                <button class="btn" onclick="newGame()">Novo Jogo</button>
+                <button class="btn btn-danger" onclick="backToStart()">Voltar ao Início</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Banco de dados atualizado com as questões fornecidas
+        const database = {
+            questions: [
+                // PORTUGUÊS
+                {
+                    id: 1,
+                    subject: "Português",
+                    descriptor: "D2 – Identificar o tema de um texto",
+                    text: "Texto: 'A leitura é uma janela para o mundo. Por meio dela, conhecemos lugares, pessoas e ideias sem sair do lugar.' Qual é o tema central do texto?",
+                    options: [
+                        "O ato de viajar para conhecer o mundo.",
+                        "A importância da leitura como forma de conhecer o mundo.",
+                        "A dificuldade de ler livros longos.",
+                        "A necessidade de sair de casa para aprender."
+                    ],
+                    correct: 1
+                },
+                {
+                    id: 2,
+                    subject: "Português",
+                    descriptor: "D7 – Inferir o sentido de uma palavra ou expressão",
+                    text: "Texto: 'O aluno chegou atrasado, mas conseguiu se sair bem na prova.' A expressão 'se sair bem' significa:",
+                    options: [
+                        "Chegar antes do horário.",
+                        "Ter bom desempenho.",
+                        "Ficar nervoso.",
+                        "Desistir da prova."
+                    ],
+                    correct: 1
+                },
+                {
+                    id: 3,
+                    subject: "Português",
+                    descriptor: "D8 – Identificar a finalidade de textos de diferentes gêneros",
+                    text: "O principal objetivo de uma receita culinária é:",
+                    options: [
+                        "Contar uma história sobre comida.",
+                        "Ensinar como preparar um prato.",
+                        "Opinar sobre sabores diferentes.",
+                        "Convencer o leitor a comer saudável."
+                    ],
+                    correct: 1
+                },
+                {
+                    id: 4,
+                    subject: "Português",
+                    descriptor: "D12 – Estabelecer relações entre partes de um texto",
+                    text: "Texto: 'Estava chovendo, por isso não fomos ao parque.' A expressão 'por isso' indica:",
+                    options: [
+                        "Causa.",
+                        "Consequência.",
+                        "Contraste.",
+                        "Tempo."
+                    ],
+                    correct: 1
+                },
+                {
+                    id: 5,
+                    subject: "Português",
+                    descriptor: "D13 – Reconhecer efeitos de sentido decorrentes do uso da pontuação",
+                    text: "Texto: 'Vamos comer, crianças!' O uso da vírgula altera o sentido da frase porque:",
+                    options: [
+                        "Indica uma pausa sem importância.",
+                        "Separa o vocativo, evitando ambiguidade.",
+                        "Indica que as crianças devem ser comidas.",
+                        "Mostra que a frase é uma pergunta."
+                    ],
+                    correct: 1
+                },
+                {
+                    id: 6,
+                    subject: "Português",
+                    descriptor: "D5 – Identificar o conflito gerador do enredo",
+                    text: "Texto: 'Maria queria ir ao baile, mas não tinha o vestido adequado.' Qual é o conflito da personagem?",
+                    options: [
+                        "Ter um vestido novo.",
+                        "Não poder ir ao baile por falta de roupa adequada.",
+                        "Gostar de festas.",
+                        "Chegar cedo ao baile."
+                    ],
+                    correct: 1
+                },
+                {
+                    id: 7,
+                    subject: "Português",
+                    descriptor: "D9 – Reconhecer o efeito de sentido do uso de tempos verbais",
+                    text: "Na frase 'Se eu estudasse mais, tiraria notas melhores', o verbo está no tempo:",
+                    options: [
+                        "Presente do indicativo.",
+                        "Futuro do pretérito.",
+                        "Pretérito imperfeito do subjuntivo.",
+                        "Pretérito perfeito do indicativo."
+                    ],
+                    correct: 2
+                },
+                {
+                    id: 8,
+                    subject: "Português",
+                    descriptor: "D10 – Identificar recursos de persuasão em textos argumentativos",
+                    text: "Texto: 'Coma frutas todos os dias! Sua saúde agradece.' Que tipo de recurso é usado no texto?",
+                    options: [
+                        "Um argumento de autoridade.",
+                        "Um apelo emocional.",
+                        "Um dado científico.",
+                        "Uma citação literária."
+                    ],
+                    correct: 1
+                },
+                {
+                    id: 9,
+                    subject: "Português",
+                    descriptor: "D14 – Identificar a relação entre o título e o texto",
+                    text: "Título: 'Chuva de Surpresas' Trecho: 'Era aniversário de Ana e, de repente, começou a chover confete colorido no pátio.' O título se relaciona ao texto porque:",
+                    options: [
+                        "Fala de uma tempestade real.",
+                        "Representa o clima da festa.",
+                        "Faz referência a algo inesperado e alegre.",
+                        "Indica tristeza."
+                    ],
+                    correct: 2
+                },
+                // MATEMÁTICA
+                {
+                    id: 10,
+                    subject: "Matemática",
+                    descriptor: "D6 – Resolver problemas que envolvem equações do 1º grau",
+                    text: "Resolva: 3x - 5 = 10. O valor de x é:",
+                    options: ["3", "4", "5", "6"],
+                    correct: 3
+                },
+                {
+                    id: 11,
+                    subject: "Matemática",
+                    descriptor: "D10 – Resolver problemas que envolvem o Teorema de Pitágoras",
+                    text: "Um triângulo retângulo tem catetos de 6 cm e 8 cm. Qual é o comprimento da hipotenusa?",
+                    options: ["10 cm", "12 cm", "14 cm", "8 cm"],
+                    correct: 0
+                },
+                {
+                    id: 12,
+                    subject: "Matemática",
+                    descriptor: "D13 – Identificar propriedades de figuras planas",
+                    text: "Um quadrado e um retângulo têm o mesmo perímetro. O que podemos afirmar?",
+                    options: [
+                        "O quadrado tem sempre área maior.",
+                        "O retângulo tem sempre área maior.",
+                        "Depende das medidas dos lados.",
+                        "Ambostêm áreas iguais."
+                    ],
+                    correct: 2
+                },
+                {
+                    id: 13,
+                    subject: "Matemática",
+                    descriptor: "D17 – Resolver problemas que envolvem proporcionalidade",
+                    text: "Se 5 cadernos custam R$ 40, quanto custarão 8 cadernos?",
+                    options: ["R$ 48", "R$ 56", "R$ 64", "R$ 72"],
+                    correct: 2
+                },
+                {
+                    id: 14,
+                    subject: "Matemática",
+                    descriptor: "D19 – Resolver problemas que envolvem o Sistema de Equações",
+                    text: "Sistema: {x + y = 10; x - y = 2}. O valor de x é:",
+                    options: ["4", "5", "6", "7"],
+                    correct: 2
+                },
+                {
+                    id: 15,
+                    subject: "Matemática",
+                    descriptor: "D5 – Resolver problemas que envolvem o cálculo do valor numérico de expressões algébricas",
+                    text: "Se x = 3 e y = 2, então o valor de 2x + 3y é:",
+                    options: ["10", "11", "12", "13"],
+                    correct: 2
+                },
+                {
+                    id: 16,
+                    subject: "Matemática",
+                    descriptor: "D8 – Resolver problemas que envolvem porcentagem",
+                    text: "Uma blusa custa R$ 80,00 e está com 25% de desconto. Qual é o novo preço?",
+                    options: ["R$ 55,00", "R$ 60,00", "R$ 65,00", "R$ 70,00"],
+                    correct: 1
+                },
+                {
+                    id: 17,
+                    subject: "Matemática",
+                    descriptor: "D12 – Resolver problemas que envolvem área de figuras planas",
+                    text: "A base de um triângulo mede 10 cm e sua altura 6 cm. Qual é sua área?",
+                    options: ["30 cm²", "40 cm²", "50 cm²", "60 cm²"],
+                    correct: 0
+                },
+                {
+                    id: 18,
+                    subject: "Matemática",
+                    descriptor: "D15 – Resolver problemas que envolvem o cálculo de médias aritméticas",
+                    text: "As notas de um aluno foram 6, 8 e 10. Qual é a média aritmética?",
+                    options: ["7", "8", "9", "10"],
+                    correct: 1
+                },
+                {
+                    id: 19,
+                    subject: "Matemática",
+                    descriptor: "D18 – Resolver problemas que envolvem relações entre grandezas",
+                    text: "Um carro percorre 240 km em 3 horas. Qual é sua velocidade média?",
+                    options: ["60 km/h", "70 km/h", "80 km/h", "90 km/h"],
+                    correct: 2
+                }
+            ],
+            challenges: [
+                {
+                    id: 1,
+                    title: "Agachamentos com peso corporal",
+                    description: "Realize 20 agachamentos (Air Squats) com técnica adequada."
+                },
+                {
+                    id: 2,
+                    title: "Flexões de braço",
+                    description: "Execute 15 flexões de braço no colchonete (pode adaptar com joelhos apoiados)."
+                },
+                {
+                    id: 3,
+                    title: "Abdominais estilo CrossFit",
+                    description: "Realize 20 abdominais: deite, encoste as mãos atrás da cabeça e toque os pés."
+                },
+                {
+                    id: 4,
+                    title: "Prancha estática",
+                    description: "Mantenha a posição de prancha por 60 segundos."
+                },
+                {
+                    id: 5,
+                    title: "Afundos alternados",
+                    description: "Execute 10 afundos (Lunges) por perna, dando passos para frente e flexionando os joelhos."
+                },
+                {
+                    id: 6,
+                    title: "Superman no colchonete",
+                    description: "Deitado de bruços, levante braços e pernas juntos por 20 repetições."
+                },
+                {
+                    id: 7,
+                    title: "Abdominal 'canivete'",
+                    description: "Execute 15 repetições unindo mãos e pés no ar."
+                },
+                {
+                    id: 8,
+                    title: "Escalador (Mountain climbers)",
+                    description: "Na posição de prancha, alterne joelhos no peito por 30 segundos."
+                }
+            ]
+        };
+
+        // Estado do jogo
+        let gameState = {
+            currentTeam: null,
+            currentQuestion: null,
+            currentChallenge: null,
+            selectedOption: null,
+            teams: [
+                { id: 1, name: "🔵 Equipe Azul", score: 0, correctAnswers: 0, challengesCompleted: 0, challengesSkipped: 0 },
+                { id: 2, name: "🎀 Equipe Rosa", score: 0, correctAnswers: 0, challengesCompleted: 0, challengesSkipped: 0 },
+                { id: 3, name: "🌿 Equipe Verde", score: 0, correctAnswers: 0, challengesCompleted: 0, challengesSkipped: 0 },
+                { id: 4, name: "🔴 Equipe Vermelha", score: 0, correctAnswers: 0, challengesCompleted: 0, challengesSkipped: 0 }
+            ],
+            usedQuestions: [],
+            usedChallenges: [],
+            gameStarted: false
+        };
+
+        // Carregar estado salvo
+        function loadGameState() {
+            const saved = localStorage.getItem('quizGameState');
+            if (saved) {
+                const savedState = JSON.parse(saved);
+                savedState.currentTeam = null;
+                savedState.selectedOption = null;
+                gameState = savedState;
+                updateAllScores();
+            }
+        }
+
+        // Salvar estado do jogo
+        function saveGameState() {
+            localStorage.setItem('quizGameState', JSON.stringify(gameState));
+        }
+
+        // Atualizar todos os placares
+        function updateAllScores() {
+            gameState.teams.forEach(team => {
+                const quizScoreElement = document.getElementById(`quiz-team${team.id}-score`);
+                if (quizScoreElement) {
+                    quizScoreElement.textContent = `${team.score} pontos`;
+                }
+            });
+        }
+
+        // Selecionar equipe para responder na tela do quiz
+        function selectCurrentTeam(teamId) {
+            document.querySelectorAll('#quiz-screen .team-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            const selectedCard = document.querySelector(`#quiz-screen .team-card:nth-child(${teamId})`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+
+            gameState.currentTeam = teamId;
+            document.getElementById('current-team-display').textContent = 
+                `Equipe selecionada: ${gameState.teams[teamId-1].name}`;
+            
+            document.getElementById('submit-btn').disabled = false;
+        }
+
+        // Iniciar jogo
+        function startGame() {
+            gameState.gameStarted = true;
+            loadRandomQuestion();
+            showScreen('quiz-screen');
+        }
+
+        // Carregar pergunta aleatória
+        function loadRandomQuestion() {
+            const availableQuestions = database.questions.filter(q => 
+                !gameState.usedQuestions.includes(q.id)
+            );
+
+            if (availableQuestions.length === 0) {
+                gameState.usedQuestions = [];
+                showRanking();
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            gameState.currentQuestion = availableQuestions[randomIndex];
+            gameState.usedQuestions.push(gameState.currentQuestion.id);
+
+            displayQuestion();
+        }
+
+        // Exibir pergunta na tela
+        function displayQuestion() {
+            const question = gameState.currentQuestion;
+            document.getElementById('question-text').textContent = 
+                `[${question.subject}] ${question.descriptor}\n\n${question.text}`;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+
+            gameState.selectedOption = null;
+            document.getElementById('feedback').classList.add('hidden');
+            
+            gameState.currentTeam = null;
+            document.querySelectorAll('#quiz-screen .team-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('current-team-display').textContent = 'Nenhuma equipe selecionada';
+            document.getElementById('submit-btn').disabled = true;
+        }
+
+        // Selecionar opção
+        function selectOption(optionIndex) {
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            document.querySelectorAll('.option')[optionIndex].classList.add('selected');
+            gameState.selectedOption = optionIndex;
+        }
+
+        // Submeter resposta
+        function submitAnswer() {
+            if (gameState.selectedOption === null) {
+                alert('Selecione uma opção antes de responder!');
+                return;
+            }
+
+            if (gameState.currentTeam === null) {
+                alert('Selecione uma equipe antes de responder!');
+                return;
+            }
+
+            const question = gameState.currentQuestion;
+            const isCorrect = gameState.selectedOption === question.correct;
+            const feedback = document.getElementById('feedback');
+            const team = gameState.teams[gameState.currentTeam - 1];
+
+            if (isCorrect) {
+                feedback.textContent = '✅ Resposta Correta! +5 pontos';
+                feedback.className = 'feedback correct';
+                
+                team.score += 5;
+                team.correctAnswers += 1;
+                
+                updateAllScores();
+                saveGameState();
+
+                document.getElementById('submit-btn').disabled = true;
+                setTimeout(() => {
+                    loadRandomChallenge();
+                    showScreen('challenge-screen');
+                }, 2000);
+            } else {
+                feedback.textContent = '❌ Resposta Incorreta';
+                feedback.className = 'feedback incorrect';
+                document.getElementById('submit-btn').disabled = true;
+                
+                setTimeout(() => {
+                    loadRandomQuestion();
+                }, 2000);
+            }
+
+            feedback.classList.remove('hidden');
+        }
+
+        // Carregar desafio aleatório
+        function loadRandomChallenge() {
+            const availableChallenges = database.challenges.filter(c => 
+                !gameState.usedChallenges.includes(c.id)
+            );
+
+            if (availableChallenges.length === 0) {
+                gameState.usedChallenges = [];
+            }
+
+            const randomIndex = Math.floor(Math.random() * database.challenges.length);
+            gameState.currentChallenge = database.challenges[randomIndex];
+            gameState.usedChallenges.push(gameState.currentChallenge.id);
+
+            displayChallenge();
+        }
+
+        // Exibir desafio
+        function displayChallenge() {
+            const challenge = gameState.currentChallenge;
+            document.getElementById('challenge-title').textContent = challenge.title;
+            document.getElementById('challenge-description').textContent = challenge.description;
+            document.getElementById('challenge-team-display').textContent = 
+                `Equipe: ${gameState.teams[gameState.currentTeam - 1].name}`;
+            
+            document.getElementById('challenge-done').checked = false;
+            document.getElementById('practice-done').checked = false;
+        }
+
+        // Concluir desafio
+        function completeChallenge() {
+            const challengeDone = document.getElementById('challenge-done').checked;
+            const practiceDone = document.getElementById('practice-done').checked;
+
+            if (!challengeDone || !practiceDone) {
+                alert('Ambas as partes do desafio devem ser concluídas para receber os pontos!');
+                return;
+            }
+
+            const team = gameState.teams[gameState.currentTeam - 1];
+            team.score += 5;
+            team.challengesCompleted += 1;
+            
+            updateAllScores();
+            saveGameState();
+
+            alert('Desafio concluído com sucesso! +5 pontos');
+            loadRandomQuestion();
+            showScreen('quiz-screen');
+        }
+
+        // Pular desafio
+        function skipChallenge() {
+            if (confirm('Tem certeza que deseja pular este desafio?\n\nA equipe não receberá os pontos extras, mas poderá continuar para a próxima pergunta.')) {
+                const team = gameState.teams[gameState.currentTeam - 1];
+                team.challengesSkipped += 1;
+                
+                updateAllScores();
+                saveGameState();
+
+                alert('Desafio pulado. A equipe não recebeu pontos extras.');
+                loadRandomQuestion();
+                showScreen('quiz-screen');
+            }
+        }
+
+        // Mostrar ranking
+        function showRanking() {
+            const sortedTeams = [...gameState.teams].sort((a, b) => b.score - a.score);
+            
+            const rankingBody = document.getElementById('ranking-body');
+            rankingBody.innerHTML = '';
+
+            sortedTeams.forEach((team, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="ranking-position">${index + 1}º</td>
+                    <td><strong>${team.name}</strong></td>
+                    <td><strong>${team.score} pontos</strong></td>
+                    <td>${team.correctAnswers}</td>
+                    <td>${team.challengesCompleted}</td>
+                `;
+                rankingBody.appendChild(row);
+            });
+
+            showScoreBreakdown();
+            showScreen('ranking-screen');
+        }
+
+        // Mostrar detalhamento de pontuação
+        function showScoreBreakdown() {
+            const breakdownContainer = document.getElementById('score-breakdown');
+            breakdownContainer.innerHTML = '';
+
+            gameState.teams.forEach(team => {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item';
+                scoreItem.innerHTML = `
+                    <div class="score-label">${team.name}</div>
+                    <div class="score-value">${team.score} pontos totais</div>
+                    <div>✅ ${team.correctAnswers} questões corretas (${team.correctAnswers * 5} pontos)</div>
+                    <div>🏃 ${team.challengesCompleted} desafios concluídos (${team.challengesCompleted * 5} pontos)</div>
+                    <div>⏭️ ${team.challengesSkipped} desafios pulados</div>
+                `;
+                breakdownContainer.appendChild(scoreItem);
+            });
+        }
+
+        // Trocar telas
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Navegação
+        function backToStart() {
+            showScreen('start-screen');
+        }
+
+        function backToQuiz() {
+            showScreen('quiz-screen');
+        }
+
+        function newGame() {
+            if (confirm('Iniciar um novo jogo? Todo o progresso atual será perdido.')) {
+                resetGame();
+            }
+        }
+
+        function resetGame() {
+            gameState = {
+                currentTeam: null,
+                currentQuestion: null,
+                currentChallenge: null,
+                selectedOption: null,
+                teams: [
+                    { id: 1, name: "🔵 Equipe Azul", score: 0, correctAnswers: 0, challengesCompleted: 0, challengesSkipped: 0 },
+                    { id: 2, name: "🎀 Equipe Rosa", score: 0, correctAnswers: 0, challengesCompleted: 0, challengesSkipped: 0 },
+                    { id: 3, name: "🌿 Equipe Verde", score: 0, correctAnswers: 0, challengesCompleted: 0, challengesSkipped: 0 },
+                    { id: 4, name: "🔴 Equipe Vermelha", score: 0, correctAnswers: 0, challengesCompleted: 0, challengesSkipped: 0 }
+                ],
+                usedQuestions: [],
+                usedChallenges: [],
+                gameStarted: false
+            };
+            localStorage.removeItem('quizGameState');
+            updateAllScores();
+            showScreen('start-screen');
+        }
+
+        // Inicializar jogo
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGameState();
+            updateAllScores();
+        });
+    </script>
+</body>
+</html>
